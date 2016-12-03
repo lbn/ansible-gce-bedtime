@@ -1,0 +1,2 @@
+export GCP_PROJECT_ID={{ bedtime_gcp_project }}
+export GCP_ZONE={{ bedtime_gcp_zone }}

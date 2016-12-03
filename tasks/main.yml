@@ -1,0 +1,45 @@
+- name: Check if required variables are defined
+  fail: msg="Variable '{{ item }}' is not defined"
+  when: item not in vars
+  with_items:
+    - bedtime_gcp_project
+    - bedtime_gcp_zone
+
+- name: Download and extract gce-bedtime
+  unarchive: 
+    remote_src: yes
+    src: "https://github.com/lbn/gce-bedtime/archive/v{{ bedtime_version }}.tar.gz"
+    dest: "/tmp"
+
+- name: Remove old installation 
+  file: path="{{ bedtime_directory }}" state=absent
+
+- name: Copy gce-bedtime to install directory
+  command: "cp -R /tmp/gce-bedtime-{{ bedtime_version }} {{ bedtime_directory }}"
+
+- name: Install requirements
+  pip:
+    requirements: "{{ bedtime_directory }}/requirements.txt"
+    virtualenv: "{{ bedtime_directory }}"
+
+- name: Create a start script in PATH
+  template: src=gce-bedtime dest="{{ bedtime_script_dir }}/gce-bedtime" mode=og+rx
+
+- name: Create environment variable based configuration file from Ansible vars
+  template: src=env dest="{{ bedtime_directory }}/env"
+
+- name: Set up a cron job to start instances
+  cron:
+    name: gce-bedtime start
+    hour: "{{ bedtime_start.hour }}"
+    minute: "{{ bedtime_start.minute }}"
+    weekday: "{{ bedtime_start.weekday }}"
+    job: "{{ bedtime_script_dir }}/gce-bedtime turnonall"
+
+- name: Set up a cron job to stop instances
+  cron:
+    name: gce-bedtime stop
+    hour: "{{ bedtime_stop.hour }}"
+    minute: "{{ bedtime_stop.minute }}"
+    weekday: "{{ bedtime_stop.weekday }}"
+    job: "{{ bedtime_script_dir }}/gce-bedtime turnoffall"

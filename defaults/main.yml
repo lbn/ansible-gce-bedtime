@@ -1,0 +1,13 @@
+bedtime_version: 1.0.0
+bedtime_directory: /usr/local/gce-bedtime
+bedtime_script_dir: /usr/local/bin
+
+bedtime_start:
+  hour: 8
+  minute: 0
+  weekday: 1-5
+
+bedtime_end:
+  hour: 19
+  minute: 0
+  weekday: 1-5

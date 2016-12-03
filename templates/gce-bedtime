@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+cd {{ bedtime_directory }}
+source ./bin/activate
+source ./env
+python $@
